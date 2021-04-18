@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from .models import News
 
 
 # Create your views here.
 def news(request):
-    return HttpResponse('<h1>Home</h1>')
+    all_news = News.objects.all()
+    return render(request, 'news/news.html', {'all_news': all_news})
