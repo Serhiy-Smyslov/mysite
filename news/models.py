@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 
+
 class Category(models.Model):
     title = models.CharField(max_length=150, db_index=True, verbose_name='Название')
 
