@@ -3,12 +3,22 @@ from .models import News, Category
 from django.views.generic import ListView, DetailView, CreateView
 from .forms import NewsForm
 from django.urls import reverse_lazy
+from django.core.paginator import Paginator
+
+
+def test(request):
+    page_objs = News.objects.all()
+    pag = Paginator(page_objs, 2)
+    p_num = request.GET.get('page', 1)
+    p_objects = pag.get_page(p_num)
+    return render(request, 'news/test.html', {'page_obj': p_objects})
 
 
 class HomeNews(ListView):
     model = News
     template_name = 'news/index.html'
     context_object_name = 'news'
+    paginate_by = 10
     # queryset = News.objects.select_related('category')
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -24,6 +34,7 @@ class NewsByCategory(ListView):
     model = News
     template_name = 'news/category.html'
     context_object_name = 'news'
+    paginate_by = 10
     allow_empty = False
 
     def get_context_data(self, *, object_list=None, **kwargs):
