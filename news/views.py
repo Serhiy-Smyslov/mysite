@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 
 class HomeNews(ListView):
     model = News
-    template_name = 'news/home_news_list.html'
+    template_name = 'news/index.html'
     context_object_name = 'news'
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -21,13 +21,13 @@ class HomeNews(ListView):
 
 class NewsByCategory(ListView):
     model = News
-    template_name = 'news/news_list.html'
+    template_name = 'news/category.html'
     context_object_name = 'news'
     allow_empty = False
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = News.objects.get(category_id=self.kwargs['category_id'])
+        context['title'] = News.objects.filter(category_id=self.kwargs['category_id'])
         return context
 
     def get_queryset(self):
@@ -36,7 +36,7 @@ class NewsByCategory(ListView):
 
 class ViewNews(DetailView):
     model = News
-    template_name = 'news/news_view.html'
+    template_name = 'news/view_news.html'
     context_object_name = 'news_item'
 
 
