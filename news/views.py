@@ -4,6 +4,28 @@ from django.views.generic import ListView, DetailView, CreateView
 from .forms import NewsForm
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator
+from .utils import MyMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Вы успешно зарегестрированы')
+            return redirect('login')
+        else:
+            messages.error(request, 'Ошибка регистрации')
+    else:
+        form = UserCreationForm()
+    return render(request, 'news/register.html', {'form': form})
+
+
+def login(request):
+    return render(request, 'news/login.html')
 
 
 def test(request):
@@ -53,10 +75,12 @@ class ViewNews(DetailView):
     context_object_name = 'news_item'
 
 
-class CreateNews(CreateView):
+class CreateNews(LoginRequiredMixin, CreateView):
     form_class = NewsForm
     template_name = 'news/add_news.html'
     success_url = reverse_lazy('home')
+    login_url = '/admin/'
+    raise_exception = True
 
 
 # def news(request):
