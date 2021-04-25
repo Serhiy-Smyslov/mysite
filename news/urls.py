@@ -7,6 +7,7 @@ urlpatterns = [
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
     path('test/', views.test, name='test'),
+    path('send_message/', views.send_message_to_email, name='send_message'),
     path('', views.HomeNews.as_view(), name='home'),
     # path('', views.news, name='news'),
     # path('categories/<int:category_id>', views.get_news_by_categories, name='news_by_category'),

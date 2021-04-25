@@ -1,13 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import News, Category
 from django.views.generic import ListView, DetailView, CreateView
-from .forms import NewsForm, UserRegisterForm, UserLoginForm
+from .forms import NewsForm, UserRegisterForm, UserLoginForm, ContactForm
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator
 from .utils import MyMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, logout
 from django.contrib import messages
+from django.core.mail import send_mail
 
 
 def user_register(request):
@@ -40,6 +41,24 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return redirect('home')
+
+
+def send_message_to_email(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            mail = send_mail(form.cleaned_data['subject'], form.cleaned_data['content'],
+                             '', [''], fail_silently=True)
+            if mail:
+                messages.success(request, 'Письмо отправлено')
+                return redirect('send_message')
+            else:
+                messages.error(request, 'Ошибка при отправке письма')
+        else:
+            messages.error(request, 'Ошибка при отправке письма')
+    else:
+        form = ContactForm()
+    return render(request, 'news/send_message.html', {'form': form})
 
 
 def test(request):
