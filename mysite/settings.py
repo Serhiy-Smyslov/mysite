@@ -231,3 +231,16 @@ EMAIL_HOST_PASSWORD = ''
 EMAIL_USE_SSL = False
 
 EMAIL_USE_TSL = True
+
+# Cache
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': BASE_DIR / 'django_cache',
+        'TIMEOUT': 60,
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
