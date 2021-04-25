@@ -51,11 +51,11 @@ def send_message_to_email(request):
                              '', [''], fail_silently=True)
             if mail:
                 messages.success(request, 'Письмо отправлено')
-                return redirect('send_message')
+                return redirect('contact')
             else:
                 messages.error(request, 'Ошибка при отправке письма')
         else:
-            messages.error(request, 'Ошибка при отправке письма')
+            messages.error(request, 'Ошибка ввода данных')
     else:
         form = ContactForm()
     return render(request, 'news/send_message.html', {'form': form})
