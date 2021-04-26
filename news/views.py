@@ -1,22 +1,24 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import News, Category
 from django.views.generic import ListView, DetailView, CreateView
-from .forms import NewsForm, UserRegisterForm, UserLoginForm, ContactForm
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator
-from .utils import MyMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.core.mail import send_mail
 
+from .models import News, Category
+from .forms import NewsForm, UserRegisterForm, UserLoginForm, ContactForm
+from .utils import MyMixin
+
 
 def user_register(request):
+    """Register new user in system and send all data in database."""
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
+            user = form.save()  # Save data in database.
+            login(request, user)  # Connect user in system.
             messages.success(request, 'Вы успешно зарегестрированы')
             return redirect('home')
         else:
@@ -27,31 +29,34 @@ def user_register(request):
 
 
 def user_login(request):
+    """Connect user in system."""
     if request.method == 'POST':
         form = UserLoginForm(data=request.POST)
         if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            return redirect('home')
+            user = form.get_user()  # Get data about user.
+            login(request, user)  # Connect user in system.
+            return redirect('home')  # Back user on home page.
     else:
         form = UserLoginForm()
     return render(request, 'news/login.html', {'form': form})
 
 
 def user_logout(request):
+    """Disconnect user from system."""
     logout(request)
-    return redirect('home')
+    return redirect('home')  # Back user on home page.
 
 
 def send_message_to_email(request):
+    """Send message on project-team e-mail address."""
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
             mail = send_mail(form.cleaned_data['subject'], form.cleaned_data['content'],
-                             '', [''], fail_silently=True)
-            if mail:
+                             '', [''], fail_silently=True)  # Send message on e-mail address and return 1 or 0.
+            if mail:  # Check send.
                 messages.success(request, 'Письмо отправлено')
-                return redirect('contact')
+                return redirect('contact')  # Back user on contact page.
             else:
                 messages.error(request, 'Ошибка при отправке письма')
         else:
@@ -70,45 +75,51 @@ def test(request):
 
 
 class HomeNews(ListView):
-    model = News
+    """Get data on index.html and setting its."""
+    model = News  # Connect model in class.
     template_name = 'news/index.html'
     context_object_name = 'news'
-    paginate_by = 10
+    paginate_by = 10  # Connect paginator on page with the step 10.
     # queryset = News.objects.select_related('category')
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):  # Update data, which get template.
         context = super().get_context_data(**kwargs)
         context['title'] = 'Главная страница'
         return context
 
-    def get_queryset(self):
+    def get_queryset(self):  # Check news on param is_published and return only publish news.
         return News.objects.filter(is_published=True).select_related('category')
 
 
 class NewsByCategory(ListView):
-    model = News
+    """Get data on category.html and setting its."""
+    model = News  # Connect model in class.
     template_name = 'news/category.html'
     context_object_name = 'news'
-    paginate_by = 10
+    paginate_by = 10  # Connect paginator on page with the step 10.
     allow_empty = False
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):  # Update data, which get template.
         context = super().get_context_data(**kwargs)
         context['title'] = News.objects.filter(category_id=self.kwargs['category_id'])
         return context
 
-    def get_queryset(self):
+    def get_queryset(self):  # Check news on param category_id and return only news the same category.
         return News.objects.filter(category_id=self.kwargs['category_id'],
                                    is_published=True).select_related('category')
 
 
 class ViewNews(DetailView):
-    model = News
+    """Get data on view_news.html and view a new."""
+    model = News  # Connect model in class.
     template_name = 'news/view_news.html'
     context_object_name = 'news_item'
 
 
 class CreateNews(LoginRequiredMixin, CreateView):
+    """Create page for create news.
+    Only authorization users can use it.
+    """
     form_class = NewsForm
     template_name = 'news/add_news.html'
     success_url = reverse_lazy('home')
